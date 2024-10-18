@@ -18,6 +18,9 @@ router.get('/class/:id', gradesCTL.getClassGrades)
 // Add new grade too
 router.post('/', gradesCTL.createGrade)
 
+//get weighted average fort learner 
+router.ger('/learner/:id/avg', gradesCTL.studentClassesAvg)
+
 export default router;
 
 
