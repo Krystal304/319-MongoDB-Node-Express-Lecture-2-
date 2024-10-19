@@ -195,24 +195,26 @@ async function getStudentStats(req, res) {
     let collection = await db.collection("grades");
 
     //specify the action aggregate
-    let results = await collection.aggregate([
-      {
-        $project: {
-          avg: { $avg: "$scores.score" },
+    let results = await collection
+      .aggregate([
+        {
+          $project: {
+            avg: { $avg: "$scores.score" },
+          },
         },
-      },
-      {
-        $match: {
-          avg: { $gte: 70 },
+        {
+          $match: {
+            avg: { $gte: 70 },
+          },
         },
-      },
-      {
-        $group: {
-          _id: null,
-          count: { $sum: 1 },
+        {
+          $group: {
+            _id: null,
+            count: { $sum: 1 },
+          },
         },
-      },
-    ]).toArray();
+      ])
+      .toArray();
 
     //return results
     res.status(200).json(results);
@@ -226,6 +228,51 @@ async function getStudentStats(req, res) {
   }
 }
 
+async function getClassIdGrades(req, res) {
+
+  const classId = req.params.id;
+
+  try {
+    //specify collection
+    let collection = await db.collection("grades");
+
+    //specify action
+    let results = await collection
+      .aggregate([
+        {
+          $match: {
+            class_id: classId,
+          },
+        },
+        {
+          $project: {
+            avg: { $avg: "$scores.score" },
+          },
+        },
+        {
+          $match: {
+            avg: { $gte: 70 },
+          },
+        },
+        {
+          $group: {
+            _id: null,
+            count: { $sum: 1 },
+          },
+        },
+      ])
+      .toArray();
+
+    //return results
+
+    res.status(200).json(results);
+  } catch (error) {
+    console.error(error);
+    res
+      .status(500)
+      .json({ error: "An errror occured whlle process this request" });
+  }
+}
 export default {
   getSingleGrade,
   getClassGrades,
@@ -233,4 +280,5 @@ export default {
   createGrade,
   studentClassesAvg,
   getStudentStats,
+  getClassIdGrades,
 };
